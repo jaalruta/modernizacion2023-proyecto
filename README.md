@@ -1,10 +1,10 @@
 # modernizacion2023-
 
-## La aplicación tiene como nombre FoodMania; esta fue pensada y creada como un modelo tipo plataforma en la cual diferentes restaurantes puedan publicar sus ofertas gastronómicas y el usuario interesado pueda crear órdenes; estas órdenes podrán ser despachadas a domicilio o puedan ser recogidas en el restaurante.
+La aplicación tiene como nombre FoodMania; esta fue pensada y creada como un modelo tipo plataforma en la cual diferentes restaurantes puedan publicar sus ofertas gastronómicas y el usuario interesado pueda crear órdenes; estas órdenes podrán ser despachadas a domicilio o puedan ser recogidas en el restaurante.
  
 ![image](https://github.com/jaalruta/modernizacion2023-proyecto/assets/98656539/abc30202-11d0-43ad-b0e7-0550d6a8787a)
 
-Foodmania cuenta con las siguientes características
+## Foodmania cuenta con las siguientes características
 
 El restaurante puede crear un sitio con sus ofertas gastronómicas.
 
