@@ -165,6 +165,7 @@ only screen and (max-width: 760px),
                             <li class="nav-item"> <a class="nav-link active" href="restaurants.php">Restaurants <span class="sr-only"></span></a> </li>
                             
 							<?php
+							
 						if(empty($_SESSION["user_id"]))
 							{
 								echo '<li class="nav-item"><a href="login.php" class="nav-link active">Login</a> </li>
@@ -230,66 +231,76 @@ only screen and (max-width: 760px),
 						  
 							<?php 
 				
-						$query_res= mysqli_query($db,"select * from users_orders where u_id='".$_SESSION['user_id']."'");
-												if(!mysqli_num_rows($query_res) > 0 )
-														{
-															echo '<td colspan="6"><center>You have No orders Placed yet. </center></td>';
-														}
-													else
-														{			      
-										  
-										  while($row=mysqli_fetch_array($query_res))
+								$ch = curl_init();
+								curl_setopt($ch, CURLOPT_URL,"http://lb-modernizacion-1158094093.us-east-1.elb.amazonaws.com/orden/".$_SESSION["user_id"]);
+								curl_setopt($ch, CURLOPT_GET, 1);
+								curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+								$server_output = curl_exec($ch);
+								curl_close($ch);
+								
+								$datos = json_decode($server_output);
+
+								if(count($datos) == 0 )
+								{
+									echo '<td colspan="6"><center>You have No orders Placed yet. </center></td>';
+								}
+								else
+									{			      
+										 
+										  foreach($datos as $dato)
 										  {
+											  //die("acaa");
+											  print_r($dato->status);
 						
 							?>
-												<tr>	
-														 <td data-column="Item"> <?php echo $row['title']; ?></td>
-														  <td data-column="Quantity"> <?php echo $row['quantity']; ?></td>
-														  <td data-column="price">₹<?php echo $row['price']; ?></td>
-														   <td data-column="status"> 
-														   <?php 
-																			$status=$row['status'];
-																			if($status=="" or $status=="NULL")
-																			{
-																			?>
-																			<button type="button" class="btn btn-info" style="font-weight:bold;"><span class="fa fa-bars"  aria-hidden="true" > Dispatch</button>
-																		   <?php 
-																			  }
-																			   if($status=="in process")
-																			 { ?>
-																				<button type="button" class="btn btn-warning"><span class="fa fa-cog fa-spin"  aria-hidden="true" ></span> On The Way!</button>
-																			<?php
-																				}
-																			if($status=="closed")
-																				{
-																			?>
-																			 <button type="button" class="btn btn-success" ><span  class="fa fa-check-circle" aria-hidden="true"> Delivered</button> 
-																			<?php 
-																			} 
-																			?>
-																			<?php
-																			if($status=="rejected")
-																				{
-																			?>
-																			 <button type="button" class="btn btn-danger"> <i class="fa fa-close"></i> Cancelled</button>
-																			<?php 
-																			} 
-																			?>
-														   
-														   
-														   
-														   
-														   
-														   
-														   </td>
-														  <td data-column="Date"> <?php echo $row['date']; ?></td>
-														   <td data-column="Action"> <a href="delete_orders.php?order_del=<?php echo $row['o_id'];?>" onclick="return confirm('Are you sure you want to cancel your order?');" class="btn btn-danger btn-flat btn-addon btn-xs m-b-10"><i class="fa fa-trash-o" style="font-size:16px"></i></a> 
-															</td>
-														 
-												</tr>
+								<tr>	
+								 <td data-column="Item"> <?php echo $dato->title; ?></td>
+								  <td data-column="Quantity"> <?php echo $dato->quantity; ?></td>
+								  <td data-column="price">₹<?php echo $dato->price;?></td>
+								   <td data-column="status"> 
+								   <?php 
+													$status=$dato->status;
+													if($status=="" or $status=="NULL")
+													{
+													?>
+													<button type="button" class="btn btn-info" style="font-weight:bold;"><span class="fa fa-bars"  aria-hidden="true" > Dispatch</button>
+												   <?php 
+													  }
+													   if($status=="in process")
+													 { ?>
+														<button type="button" class="btn btn-warning"><span class="fa fa-cog fa-spin"  aria-hidden="true" ></span> On The Way!</button>
+													<?php
+														}
+													if($status=="closed")
+														{
+													?>
+													 <button type="button" class="btn btn-success" ><span  class="fa fa-check-circle" aria-hidden="true"> Delivered</button> 
+													<?php 
+													} 
+													?>
+													<?php
+													if($status=="rejected")
+														{
+													?>
+													 <button type="button" class="btn btn-danger"> <i class="fa fa-close"></i> Cancelled</button>
+													<?php 
+													} 
+													?>
+								   
+								   
+								   
+								   
+								   
+								   
+								   </td>
+								  <td data-column="Date"> <?php echo $dato->date; ?></td>
+								   <td data-column="Action"> <a href="delete_orders.php?order_del=<?php echo $dato->o_id;?>" onclick="return confirm('Are you sure you want to cancel your order?');" class="btn btn-danger btn-flat btn-addon btn-xs m-b-10"><i class="fa fa-trash-o" style="font-size:16px"></i></a> 
+									</td>
+								 
+							</tr>				
 												
 											
-														<?php }} ?>					
+							<?php }} ?>					
 							
 							
 										

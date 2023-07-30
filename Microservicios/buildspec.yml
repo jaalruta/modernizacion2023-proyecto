@@ -1,0 +1,58 @@
+version: 0.2
+env:
+  variables:
+    DB_NAME: "modernizacion"
+    DB_USER: "postgresql"
+    DB_PASSWORD: "postgresql" 
+    DB_PORT: "5432" 
+    DB_HOST: "localhost" 
+phases:
+  install:
+    runtime-versions:
+      python: 3.8
+    commands:
+      - docker pull public.ecr.aws/docker/library/postgres:latest
+  pre_build:
+    commands:
+      - echo Running postgres
+      - docker run -e POSTGRES_PASSWORD=postgresql -e POSTGRES_USER=postgresql -e POSTGRES_DB=modernizacion -d -p 5432:5432 postgres
+      - echo Logging in to Amazon ECR...
+      - aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 015435626761.dkr.ecr.us-east-1.amazonaws.com
+  build:
+    commands:
+      - echo Build started on `date`
+      - echo Installing dependencies
+      - cd ./microservicio-ordenes/src
+      - pip install -r requirements.txt
+      - echo Running tests
+      - cd ..
+      - coverage run --omit */dist-packages/* -m pytest
+      - coverage report --fail-under=80
+      - echo Build started on `date`
+      - echo Building the Docker image... 
+      - docker build -t modernizacion .
+      - docker tag modernizacion:latest 015435626761.dkr.ecr.us-east-1.amazonaws.com/modernizacion:latest
+  post_build:
+    commands:
+      - cd ..
+      - echo Build completed on `date`
+      - echo Pushing the Docker image...
+      - docker push 015435626761.dkr.ecr.us-east-1.amazonaws.com/modernizacion:latest
+      - echo Writing Image Definitions file...
+      - printf '[{"name":"Container-modernizacion1","imageUri":"015435626761.dkr.ecr.us-east-1.amazonaws.com/modernizacion:latest}]' > imagedefinitions.json
+      - printf '{"ImageURI":"015435626761.dkr.ecr.us-east-1.amazonaws.com/modernizacion:latest"}' > imageDetail.json
+      - cat imagedefinitions.json 
+
+artifacts:
+  files:
+    - 'image*.json'
+    - 'appspec.yaml'
+    - 'taskdef.json'
+  secondary-artifacts:
+    DefinitionArtifact:
+      files:
+        - appspec.yaml
+        - taskdef.json
+    ImageArtifact:
+      files:
+        - imageDetail.json

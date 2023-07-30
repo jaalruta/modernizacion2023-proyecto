@@ -28,22 +28,32 @@ else{
 												
 													if($_POST['submit'])
 													{
-						
-													$SQL="insert into users_orders(u_id,title,quantity,price) values('".$_SESSION["user_id"]."','".$item["title"]."','".$item["quantity"]."','".$item["price"]."')";
-						
-														mysqli_query($db,$SQL);
+							
+														$datos = '{
+																	"u_id":"'.$_SESSION["user_id"].'",
+																	"title":"'.$item["title"].'",
+																	"quantity":"'.$item["quantity"].'",
+																	"price":"'.$item["price"].'"
+																}';
 														
-                                                        
-                                                        unset($_SESSION["cart_item"]);
-                                                        unset($item["title"]);
-                                                        unset($item["quantity"]);
-                                                        unset($item["price"]);
+														$ch = curl_init( "http://lb-modernizacion-1158094093.us-east-1.elb.amazonaws.com/orden" );
+														curl_setopt( $ch, CURLOPT_POSTFIELDS, $datos );
+														curl_setopt( $ch, CURLOPT_HTTPHEADER, array('Content-Type:application/json'));
+														curl_setopt( $ch, CURLOPT_RETURNTRANSFER, true );
+														$result = curl_exec($ch);
+														curl_close($ch);
+														
+														print_r($result);
+													
+															
+														unset($_SESSION["cart_item"]);
+														unset($item["title"]);
+														unset($item["quantity"]);
+														unset($item["price"]);
 														$success = "Thankyou! Your Order Placed successfully!";
 
-                                                        function_alert();
+														function_alert();
 
-														
-														
 													}
 												}
 ?>
